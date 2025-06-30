@@ -10,7 +10,8 @@ ifeq ($(UNAME), Darwin)
 endif
 
 ifeq ($(UNAME), Linux)
-	CC := gcc
+  # allow cross-compiler to override (e.g. aarch64-linux-gnu-gcc)
+  CC ?= gcc
 	CFLAGS += -g -O3 -fpic -shared -Wall -Wextra -Wno-unused-parameter
 endif
 
@@ -23,7 +24,7 @@ BUILD = $(MIX_APP_PATH)/priv
 all: $(BUILD)/nif.so
 
 $(BUILD):
-	mkdir -p priv
+	mkdir -p $(BUILD)
 
 $(BUILD)/nif.so: c_src/nif.c $(BUILD)
 	$(CC) $(CFLAGS) -I$(ERL_INCLUDE_PATH) c_src/*.c -o $(BUILD)/nif.so

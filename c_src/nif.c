@@ -1,4 +1,5 @@
 #include "nif.h"
+#include <sys/mman.h>   // for MAP_FAILED
 
 static const int FD_CLOSED = -1;
 ErlNifResourceType* FD_RES_TYPE = NULL;
@@ -64,9 +65,8 @@ static ERL_NIF_TERM open_framebuffer(ErlNifEnv* env, int argc, const ERL_NIF_TER
   screensize = vinfo.yres_virtual * finfo.line_length;
 
   //***** Open r/w pointers to memory representing the display.
-  fbp = (char*)mmap(0, screensize * 2, PROT_READ | PROT_WRITE, MAP_SHARED, fb, (off_t)0);
-  // Hard-coded to 32bit arch; warns on 64bit
-  if ((int)fbp == -1) goto err;
+  fbp = (char*)mmap(0, screensize * 2, PROT_READ|PROT_WRITE, MAP_SHARED, fb, 0);
+  if (fbp == MAP_FAILED) goto err;
   bbp = fbp + screensize;
 
   //***** Make the ref which can be passed back into the NIF.
